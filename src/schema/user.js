@@ -24,13 +24,13 @@ const userSchema = new mongoose.Schema({
         ]
     },
     avatar: {
-        type: String,
+        type: String, 
     }
-}, { timestamps: true });
+}, { timestamps: true }); 
 
 userSchema.pre('save', function saveUser(next){
     const user = this;
-    user.avatar = `https://robohash.org/${user.userName}`,
+    user.avatar = `https://robohash.org/${user.userName}`,  
     next();
 })
 
