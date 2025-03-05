@@ -1,8 +1,10 @@
-import Workspace from '../schema/workspace.js';
-import crudRepository from './crudRepository.js';
-import clientError from '../utils/errors/clientError.js'
 import { StatusCodes } from 'http-status-codes';
+
 import User from '../schema/user.js';
+import Workspace from '../schema/workspace.js';
+import clientError from '../utils/errors/clientError.js'
+import crudRepository from './crudRepository.js';
+import channelRepository from './channelRepository.js';
 
 const userRepository = {
     ...crudRepository(Workspace),
@@ -75,8 +77,40 @@ const userRepository = {
 
         return workspace;
     },
-    addChannelToWorkspace: async function () {},
-    fetchAllWorkspaceByMemberId: async function () {},
+    addChannelToWorkspace: async function (workspaceId, channelName) {
+        const workspace = await Workspace.findById(workspaceId).populate('channels');
+
+        if(!workspace){
+            throw new clientError({
+                explanation: 'Invalid data sent from the client',
+                message: 'Workspace not found',
+                statuCode: StatusCodes.NOT_FOUND
+            });
+        }
+
+        const isChannelIsAlreadyPartOfWorkspace = workspace.channels.find(
+            (channel) => channel.name === channelName
+        );
+        if(!isChannelIsAlreadyPartOfWorkspace){
+            throw new clientError({
+                explanation: 'Invalid data sent from the client',
+                message: 'channel is already a part of worksapce',
+                statuCode: StatusCodes.FORBIDDEN
+            });
+        }
+
+        const channel = await channelRepository.create({ name: channelName});
+
+        workspace.channels.push(channel);
+        await workspace.save();
+        return workspace;
+    },
+    fetchAllWorkspaceByMemberId: async function (memberId) {
+        const worksapces = await Workspace.find({
+            'members.memberId': memberId
+        }).populate('members.memberId', 'username email avatar');
+         return worksapces;
+    },
 }
 
 export default workspaceRepository;
