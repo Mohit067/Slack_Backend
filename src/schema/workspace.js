@@ -9,7 +9,7 @@ const workspaceSchema = new mongoose.Schema({
     discription: {
         type: String
     },
-    member: [
+    members: [
         {
             memberId: {
                 type: mongoose.Schema.Types.ObjectId,
