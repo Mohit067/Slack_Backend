@@ -3,7 +3,10 @@ import jwt from 'jsonwebtoken'
 
 import { JWT_SECRET } from "../config/serverConfig.js";
 import userRepository from "../repositories/userRepository.js";
-import { customErrorResponse, internullServerError } from "../utils/common/responseObject";
+import { 
+    customErrorResponse, 
+    internullServerError 
+} from "../utils/common/responseObject.js";
 
 export const isAuthenticated = async (req, res, next) => {
     try {
@@ -32,7 +35,7 @@ export const isAuthenticated = async (req, res, next) => {
     } catch (error) {
         console.log("Auth middlerware error", error);
         console.log("name is here ::::: ", error.name);
-        if(error.name === 'JsonWebTokeError'){
+        if(error.name === 'JsonWebTokenError'){
             return res.status(StatusCodes.FORBIDDEN).json(
                 customErrorResponse({
                     explanation: 'Invalid data sent from client',

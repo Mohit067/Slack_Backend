@@ -3,10 +3,10 @@ import { StatusCodes } from 'http-status-codes';
 import User from '../schema/user.js';
 import Workspace from '../schema/workspace.js';
 import clientError from '../utils/errors/clientError.js'
-import crudRepository from './crudRepository.js';
 import channelRepository from './channelRepository.js';
+import crudRepository from './crudRepository.js';
 
-const userRepository = {
+const workspaceRepository = {
     ...crudRepository(Workspace),
     
     getWorkspaceByName: async function (workspaceName) {
@@ -38,7 +38,7 @@ const userRepository = {
         return workspace;
     },
     addMemberToWorkspace: async function (workspaceId, memberId, role) {
-        const workspace = await Workspace.findById({ workspaceId });
+        const workspace = await Workspace.findById(workspaceId);
 
         if(!workspace){
             throw new clientError({
@@ -48,7 +48,7 @@ const userRepository = {
             });
         }
 
-        const isValidUser = await User.findById({ memberId });
+        const isValidUser = await User.findById(memberId);
         if(!isValidUser){
             throw new clientError({
                 explanation: 'Invalid data sent from the client',
@@ -57,18 +57,18 @@ const userRepository = {
             });
         }
 
-        const isMemberAlreadyPartOfWorkspace = workspace.member.find(
+        const isMemberAlreadyPartOfWorkspace = workspace.members.find(
             (member) => member.memberId == memberId
         );
 
-        if(!isMemberAlreadyPartOfWorkspace){
+        if(isMemberAlreadyPartOfWorkspace){
             throw new clientError({
                 explanation: 'Invalid data sent from the client',
                 message: 'User is already a part of worksapce',
                 statuCode: StatusCodes.FORBIDDEN
             });
         }
-        workspace.member.push({
+        workspace.members.push({
             memberId,
             role
         });
@@ -91,7 +91,7 @@ const userRepository = {
         const isChannelIsAlreadyPartOfWorkspace = workspace.channels.find(
             (channel) => channel.name === channelName
         );
-        if(!isChannelIsAlreadyPartOfWorkspace){
+        if(isChannelIsAlreadyPartOfWorkspace){
             throw new clientError({
                 explanation: 'Invalid data sent from the client',
                 message: 'channel is already a part of worksapce',
