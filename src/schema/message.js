@@ -24,3 +24,7 @@ const messageSchema = new mongoose.Schema({
         required: [true, 'Workspace ID required']
     }
 });
+
+const Message = mongoose.model('Message', messageSchema);
+
+export default Message;
