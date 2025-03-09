@@ -8,7 +8,14 @@ import crudRepository from './crudRepository.js';
 
 const workspaceRepository = {
     ...crudRepository(Workspace),
-    
+
+    getWorkspaceDetailsById: async function (workspaceId) {
+        const worksapce = await Workspace.findById(workspaceId)
+            .populate('members.memberId', 'username email avatar')
+            .populate('channels')
+
+        return worksapce;
+    },
     getWorkspaceByName: async function (workspaceName) {
         const workspace = await Workspace.findOne({
             name: workspaceName
@@ -99,7 +106,11 @@ const workspaceRepository = {
             });
         }
 
-        const channel = await channelRepository.create({ name: channelName});
+        const channel = await channelRepository.create({ 
+            name: channelName,
+            workspaceId: workspaceId
+
+        });
 
         workspace.channels.push(channel);
         await workspace.save();
