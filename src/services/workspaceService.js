@@ -2,19 +2,24 @@ import { StatusCodes } from 'http-status-codes';
 import mongoose from "mongoose";
 import { v4 as uuidv4} from 'uuid';
 
+import { addEmailToMailQueue } from '../producers/mailQueueProducer.js';
 import channelRepository from '../repositories/channelRepository.js';
 import userRepository from '../repositories/userRepository.js';
 import workspaceRepository from "../repositories/workspaceRepository.js";
+import { workspaceJoinMail } from '../utils/common/mailObject.js';
 import clientError from '../utils/errors/clientError.js';
 import ValidationError from '../utils/errors/validationError.js';
 
 export const isUserAdminOfWorkspace = (workspace, userId) => {
-    return workspace.members.find(
-        (member) => 
-            (member.memberId.toString() === userId || member.memberId._id.toString()) === userId.toString() 
-            && member.role === "admin"
-        );
-}
+    return workspace.members.some((member) => {
+        const memberIdStr = member.memberId?._id
+            ? member.memberId._id.toString()  // If memberId is an object
+            : member.memberId.toString();    // If memberId is a string
+
+        return memberIdStr === userId.toString() && member.role === "admin";
+    });
+};
+
 
 export const isUserMemberOfWorkspace = (workspace, userId) => {
     if (!workspace || !workspace.members) {
@@ -284,6 +289,12 @@ export const addMemberToWorkspaceService = async (
         }
 
         const response = await workspaceRepository.addMemberToWorkspace(workspaceId, memberId, role);
+
+        addEmailToMailQueue({
+            ...workspaceJoinMail(workspace),
+            to: isValidUser.email
+        });
+
         return response;
     } catch (error) {
         console.log("add member to workspace error", error);
