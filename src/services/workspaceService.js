@@ -103,7 +103,7 @@ export const deleteWorkspaceService = async (workspaceId, userId) => {
         console.log("Received workspaceId:", workspaceId);
         console.log("Received userId:", userId);
 
-        // ✅ Validate workspaceId before querying
+        //  Validate workspaceId before querying
         if (!mongoose.Types.ObjectId.isValid(workspaceId)) {
             throw new clientError({
                 explanation: "Invalid workspace ID",
