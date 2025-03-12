@@ -8,7 +8,7 @@ const messageSchema = new mongoose.Schema({
     image: {
         type: String
     } ,
-    channerId: {
+    channelId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'channer',
         required: [true, 'Channel ID required']
