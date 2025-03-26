@@ -22,12 +22,10 @@ export const isUserAdminOfWorkspace = (workspace, userId) => {
 
 
 export const isUserMemberOfWorkspace = (workspace, userId) => {
-    if (!workspace || !workspace.members) {
-        console.error("Workspace or members are undefined:", workspace);
-        return false;
-    }
     
-    return workspace.members.find((member) => member.memberId.toString() === userId.toString());
+    return workspace.members.find((member) => {
+        return member.memberId._id.toString() === userId.toString()
+    });
 };
 
 export const isChannelIsAlreadyPartOfWorkspace = (workspace, channelName) => {
@@ -161,7 +159,7 @@ export const deleteWorkspaceService = async (workspaceId, userId) => {
 
 export const getWorkspaceService = async (workspaceId, userId) => {
     try {
-        const workspace = await workspaceRepository.getById(workspaceId);
+        const workspace = await workspaceRepository.getWorkspaceDetailsById(workspaceId);
         console.log("this is workspace :::  ;;; ", workspace);
         if(!workspace){
             throw new clientError({
