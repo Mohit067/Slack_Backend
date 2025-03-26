@@ -354,3 +354,30 @@ export const addChannelToWorkspaceService = async (
         throw error;
     }
 }
+
+export const joinWorkspaceService = async (workspaceId, joinCode, userId) => {
+    try {
+        const workspace = await workspaceRepository.getWorkspaceDetailsById(workspaceId);
+        if(!workspace){
+            throw new clientError({
+                explanation: "Invalid data sent from the client",
+                message: "Workspace not found",
+                statusCodes: StatusCodes.NOT_FOUND,
+            });
+        }
+
+        if(workspace.joinCode !== joinCode){
+            throw new clientError({
+                explanation: "Invalid data sent from the client",
+                message: "Workspace not found",
+                statusCodes: StatusCodes.NOT_FOUND,
+            });
+        }
+
+        const UpdatedWorkspace = await workspaceRepository.addMemberToWorkspace(workspaceId, userId, 'member');
+        return UpdatedWorkspace;
+    } catch (error) {
+        console.log("joinWorkspace error", error);
+        throw error;
+    }
+}
