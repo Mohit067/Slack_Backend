@@ -1,13 +1,23 @@
 import bcrypt from 'bcrypt';
 import { StatusCodes } from "http-status-codes";
 
+import { ENABLE_EMAIL_VARIFICATION } from '../config/serverConfig.js';
+import { addEmailToMailQueue } from '../producers/mailQueueProducer.js';
 import userRepository from "../repositories/userRepository.js"
 import { createJWT } from "../utils/common/authUtilis.js";
+import { verificationEmail } from '../utils/common/mailObject.js';
 import clientError from "../utils/errors/clientError.js";
 import ValidationError from "../utils/errors/validationError.js";
 export const signUpService = async (data) => {
     try {
         const newUser = await userRepository.create(data);
+        if(ENABLE_EMAIL_VARIFICATION ) {
+            // send verification mail
+            addEmailToMailQueue({
+                ...verificationEmail(newUser.verificationToken),
+                to: newUser.email
+            })
+        }
         console.log(newUser);
         return newUser;
         
@@ -33,6 +43,39 @@ export const signUpService = async (data) => {
                 'A user with the same email or username already exists'
             );
         }
+    }
+}
+
+export const verifyTokenService = async (token) => {
+    try {
+        const user = await userRepository.getByToken(token);
+        if(!user){
+            throw new clientError({
+                explanation: 'Invalid data sent from the client',
+                message: 'Invalid token',
+                statusCodes: StatusCodes.BAD_REQUEST,
+            });
+        }
+
+        // check the toke has expire or not
+        if(user.verificationToken < Date.now()) {
+            throw new clientError({
+                explanation: 'Invalid data sent from the client',
+                message: 'Token has expired',
+                statusCodes: StatusCodes.UNAUTHORIZED,
+            });
+        }
+
+        user.isVerified = true;
+        user.verificationToken = null;
+        user.verificationTokenExpiry = null;
+        await user.save();
+
+        return user;
+
+    } catch (error) {
+        console.log('Error verification token', error);
+        throw error;
     }
 }
 
