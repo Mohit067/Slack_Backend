@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const messageSchema = new mongoose.Schema({
     body: {
         type: String,
-        required: [true, 'body is required']
+        required: [true, 'Message body is required']
     },
     image: {
         type: String
@@ -23,7 +23,7 @@ const messageSchema = new mongoose.Schema({
         ref: 'Workspace',
         required: [true, 'Workspace ID required']
     }
-});
+}, {timestamps: true});
 
 const Message = mongoose.model('Message', messageSchema);
 
