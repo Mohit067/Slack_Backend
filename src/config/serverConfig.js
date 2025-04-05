@@ -25,3 +25,11 @@ export const REDIS_PORT =  process.env.REDIS_PORT;
 export const APP_LINK = process.env.APP_LINK || 'http://localhost:5000';
 
 export const ENABLE_EMAIL_VARIFICATION = process.env.ENABLE_EMAIL_VARIFICATION || false;
+
+export const AWS_REGION =  process.env.AWS_REGION;
+
+export const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
+
+export const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
+
+export const AWS_BUCKET_NAME = process.env.AWS_BUCKET_NAME;
