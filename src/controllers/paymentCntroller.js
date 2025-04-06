@@ -2,8 +2,8 @@ import { StatusCodes } from "http-status-codes";
 
 import razorpay from '../config/razorpayConfing.js'
 import { CURRENCY, RECEIPT_SECRET } from "../config/serverConfig.js";
-import { internullServerError } from "../utils/common/responseObject.js";
 import { createPaymentService, updatePaymentStatusService } from "../services/paymentService.js";
+import { internullServerError } from "../utils/common/responseObject.js";
 export const createOrderController = async (req, res) => { 
     try {
         const options = {
@@ -38,7 +38,7 @@ export const createOrderController = async (req, res) => {
 export const capturePaymentController = async (req, res) => {
     try {
         console.log("Request body", req.body);
-        await updatePaymentStatusService(req.body.orderId, req.body.status, req.body.paymentId);
+        await updatePaymentStatusService(req.body.orderId, req.body.status, req.body.paymentId, req.body.signature);
         return res.status(StatusCodes.CREATED).json({
             success: true,
             message: 'Order create successfully',
