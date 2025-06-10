@@ -25,7 +25,8 @@ const userSchema = new mongoose.Schema({
         match: [/^[a-zA-Z0-9]+$/, 'Username must contain only letters and numbers'],
        
     },
-    
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
     avatar: {
         type: String, 
     },
@@ -42,17 +43,16 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true }); 
 
 userSchema.pre('save', function saveUser(next) {
-    if (this.isNew) {
-        console.log('Generating verification token...');
-        const user = this;
-        const SALT = bcrypt.genSaltSync(9);
-        const hashedPassword = bcrypt.hashSync(user.password, SALT);
-        user.password = hashedPassword;
-        user.avatar = `https://robohash.org/${user.username}`;
-        user.verificationToken = uuidv4().substring(0, 10).toUpperCase(); 
-        user.verificationTokenExpiry = Date.now() + 3600000; // 1hour
-    }
-    next();
+  if (this.isNew) {
+    const user = this;
+    const SALT = bcrypt.genSaltSync(9);
+    const hashedPassword = bcrypt.hashSync(user.password, SALT);
+    user.password = hashedPassword;
+    user.avatar = `https://robohash.org/${user.username}`;
+    user.verificationToken = uuidv4().substring(0, 10).toUpperCase();
+    user.verificationTokenExpiry = Date.now() + 3600000; // 1 hour
+  }
+  next();
 });
 
 
